@@ -5,6 +5,7 @@
 #include "glm\ext.hpp"
 #include <Gizmos.h>
 #include "Sphere.h"
+#include "Plane.h"
 
 
 PhysicsProjectApp::PhysicsProjectApp() {
@@ -36,11 +37,23 @@ bool PhysicsProjectApp::startup()
 	//If it is to high it causes the sim to stutter and reduce stability
 	m_physicsScene->SetTimeStep(0.01f);
 
-	Sphere* ball;
-	ball = new Sphere(glm::vec2(-40, 0), glm::vec2(10, 30), 3.0f, 1, glm::vec4(1, 0, 0, 1));
-	m_physicsScene->AddActor(ball);
+	Sphere* ball1;
+	ball1 = new Sphere(glm::vec2(-40, 20), glm::vec2(0, -10), 3.0f, 6, glm::vec4(1, 0, 0, 1));
+	m_physicsScene->AddActor(ball1);
 
-		return true;
+	Sphere* ball2;
+	ball2 = new Sphere(glm::vec2(40, 20), glm::vec2(0, -10), 3.0f, 6, glm::vec4(1, 0, 0, 1));
+	m_physicsScene->AddActor(ball2);
+
+	ball1->ApplyForce(glm::vec2(0, -10));
+	ball2->ApplyForce(glm::vec2(0, -10));
+
+	Plane* plane = new Plane();
+	m_physicsScene->AddActor(plane);
+
+
+
+	return true;
 }
 
 void PhysicsProjectApp::shutdown() {
@@ -63,7 +76,7 @@ void PhysicsProjectApp::update(float deltaTime) {
 		quit();
 }
 
-void PhysicsProjectApp::draw() 
+void PhysicsProjectApp::draw()
 {
 
 	// wipe the screen to the background colour
