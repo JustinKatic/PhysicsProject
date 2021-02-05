@@ -38,15 +38,15 @@ bool PhysicsProjectApp::startup()
 	m_physicsScene->SetTimeStep(0.01f);
 
 	Sphere* ball1;
-	ball1 = new Sphere(glm::vec2(-40, 20), glm::vec2(0, -10), 3.0f, 6, glm::vec4(1, 0, 0, 1));
+	ball1 = new Sphere(glm::vec2(-40, 20), glm::vec2(0, 0), 3.0f, 6, glm::vec4(1, 0, 0, 1));
 	m_physicsScene->AddActor(ball1);
 
 	Sphere* ball2;
-	ball2 = new Sphere(glm::vec2(40, 20), glm::vec2(0, -10), 3.0f, 6, glm::vec4(1, 0, 0, 1));
+	ball2 = new Sphere(glm::vec2(40, 20), glm::vec2(0, 0), 3.0f, 6, glm::vec4(1, 0, 0, 1));
 	m_physicsScene->AddActor(ball2);
 
-	ball1->ApplyForce(glm::vec2(0, -10));
-	ball2->ApplyForce(glm::vec2(0, -10));
+	ball1->ApplyForce(glm::vec2(60, 0));
+	ball2->ApplyForce(glm::vec2(-60, 0));
 
 	Plane* plane = new Plane();
 	m_physicsScene->AddActor(plane);
