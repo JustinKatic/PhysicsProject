@@ -6,6 +6,7 @@
 #include <Gizmos.h>
 #include "Sphere.h"
 #include "Plane.h"
+#include "Box.h"
 
 
 PhysicsProjectApp::PhysicsProjectApp() {
@@ -37,21 +38,8 @@ bool PhysicsProjectApp::startup()
 	//If it is to high it causes the sim to stutter and reduce stability
 	m_physicsScene->SetTimeStep(0.01f);
 
-	Sphere* ball1;
-	ball1 = new Sphere(glm::vec2(-40, 20), glm::vec2(0, 0), 3.0f, 6, glm::vec4(1, 0, 0, 1));
-	m_physicsScene->AddActor(ball1);
-
-	Sphere* ball2;
-	ball2 = new Sphere(glm::vec2(40, 20), glm::vec2(0, 0), 3.0f, 6, glm::vec4(1, 0, 0, 1));
-	m_physicsScene->AddActor(ball2);
-
-	ball1->ApplyForce(glm::vec2(60, 0));
-	ball2->ApplyForce(glm::vec2(-60, 0));
-
-	Plane* plane = new Plane();
-	m_physicsScene->AddActor(plane);
-
-
+	DrawRect();
+	//SphereAndPlane();
 
 	return true;
 }
@@ -96,4 +84,45 @@ void PhysicsProjectApp::draw()
 
 	// done drawing sprites
 	m_2dRenderer->end();
+}
+
+void PhysicsProjectApp::DrawRect()
+{
+	m_physicsScene->AddActor(new Sphere(glm::vec2(20, 10), glm::vec2(-10, -17), 1, 3, glm::vec4(1, 0, 0, 1)));
+	m_physicsScene->AddActor(new Plane(glm::vec2(-0.65, 0.75), -25));
+
+	Box* box1 = new Box(glm::vec2(-20, 0), glm::vec2(16, -4), 1, 4, 8, 4, glm::vec4(1, 0, 0, 1));
+	box1->SetRotation(0.5f);
+	m_physicsScene->AddActor(box1);
+
+	Box* box2 = new Box(glm::vec2(10, 0), glm::vec2(-4, 0), 1, 4, 8, 4, glm::vec4(0, 1, 0, 1));
+	box2->SetRotation(0.5f);
+	m_physicsScene->AddActor(box1);
+	m_physicsScene->AddActor(box2);
+
+	box1->ApplyForce(glm::vec2(30, 0), glm::vec2(0));
+	box2->ApplyForce(glm::vec2(-15, 0), glm::vec2(0));
+
+	Sphere* ball = new Sphere(glm::vec2(5, -10), glm::vec2(0), 1, 3, glm::vec4(0, 0, 1, 1));
+	ball->SetRotation(0.5f);
+	m_physicsScene->AddActor(ball);
+	ball->SetKimematic(true);
+}
+
+void PhysicsProjectApp::SphereAndPlane()
+{
+	Sphere* ball1;
+	ball1 = new Sphere(glm::vec2(-30, 10), glm::vec2(0), 3.0f, 4, glm::vec4(1, 0, 0, 1));
+	m_physicsScene->AddActor(ball1);
+
+	Sphere* ball2;
+	ball2 = new Sphere(glm::vec2(30, 10), glm::vec2(0), 3.0f, 4, glm::vec4(1, 0, 0, 1));
+	m_physicsScene->AddActor(ball2);
+	
+
+	ball1->ApplyForce(glm::vec2(30, 0), glm::vec2(0));
+	ball2->ApplyForce(glm::vec2(-30, 0), glm::vec2(0));
+
+	Plane* plane = new Plane();
+	m_physicsScene->AddActor(plane);
 }

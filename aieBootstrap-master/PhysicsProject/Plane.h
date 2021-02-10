@@ -1,8 +1,10 @@
 #pragma once
 #include "PhysicsObject.h"
+
+class RigidBody;
+
 class Plane : public PhysicsObject
 {
-
 	//this is a one-sided object that extends infinitly along both its edge and backwards from its normal direction.
 public:
 	Plane(glm::vec2 a_normal, float a_distance);
@@ -14,6 +16,8 @@ public:
 	virtual void Debug() {};
 	virtual void ResetPosition() {};
 	virtual void MakeGizmo();
+
+	void ResolveCollision(RigidBody* a_otherActor, glm::vec2 a_contactPoint);
 
 
 	glm::vec2 GetNormal() { return m_normal; }
