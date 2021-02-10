@@ -27,4 +27,5 @@ protected:
 public:
 	void DrawRect();
 	void SphereAndPlane();
+	void DrawPoolGame();
 };

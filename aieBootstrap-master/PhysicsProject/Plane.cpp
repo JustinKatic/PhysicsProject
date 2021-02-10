@@ -16,6 +16,8 @@ Plane::Plane() : PhysicsObject(PLANE)
 	m_normal = glm::vec2(0, 1);
 	m_distanceToOrigin = 0;
 	m_color = glm::vec4(1, 1, 1, 1);
+	m_isKinematic = true;
+	m_elasticity = 1.0f;
 }
 
 Plane::~Plane()
@@ -24,6 +26,7 @@ Plane::~Plane()
 
 void Plane::FixedUpdate(glm::vec2 a_gravity, float a_timeStep)
 {
+
 }
 
 void Plane::MakeGizmo()
