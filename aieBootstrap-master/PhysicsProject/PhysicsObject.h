@@ -4,6 +4,7 @@
 //this is a pure abstract class. it will be used as a base for the derived classes that will use FixedUpdate
 enum ShapeType
 {
+	JOINT = -1,
 	PLANE = 0,
 	SPHERE,
 	BOX,
@@ -18,15 +19,19 @@ public:
 	virtual void MakeGizmo() = 0;
 	virtual void ResetPosition() {};
 
+	virtual bool IsInside(glm::vec2 a_point) = 0;
+
 	ShapeType GetShapeID() { return m_shapeID; }
 
 	bool IsKinematic() { return m_isKinematic; }
-	bool SetKimematic(bool a_state) { return m_isKinematic = a_state; }
+	bool SetKinematic(bool a_state) { return m_isKinematic = a_state; }
 
 	float GetElasticity() { return m_elasticity; }
 
 	//keep to 1 for realism.
 	float SetElasticity(float a_new) { return m_elasticity = a_new; }
+
+	
 
 protected:
 	ShapeType m_shapeID;

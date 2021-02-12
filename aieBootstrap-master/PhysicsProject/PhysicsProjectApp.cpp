@@ -7,13 +7,16 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Box.h"
+#include "Spring.h"
 
 
-PhysicsProjectApp::PhysicsProjectApp() {
+PhysicsProjectApp::PhysicsProjectApp()
+{
 
 }
 
-PhysicsProjectApp::~PhysicsProjectApp() {
+PhysicsProjectApp::~PhysicsProjectApp()
+{
 
 }
 
@@ -21,6 +24,30 @@ bool PhysicsProjectApp::startup()
 {
 	//increases the 2D line count to maximise the number of objects we an draw
 	aie::Gizmos::create(255U, 255U, 65535U, 65535U);
+
+	m_testTexture = new aie::Texture("./textures/grass.png");
+
+	m_tableTexture = new aie::Texture("./textures/table.png");
+
+	m_whiteBallTexture = new aie::Texture("./textures/whiteBall.png");
+
+	m_ball1Texture = new aie::Texture("./textures/ball1.png");
+	m_ball2Texture = new aie::Texture("./textures/ball2.png");
+	m_ball3Texture = new aie::Texture("./textures/ball3.png");
+	m_ball4Texture = new aie::Texture("./textures/ball4.png");
+	m_ball5Texture = new aie::Texture("./textures/ball5.png");
+	m_ball6Texture = new aie::Texture("./textures/ball6.png");
+	m_ball7Texture = new aie::Texture("./textures/ball7.png");
+	m_ball8Texture = new aie::Texture("./textures/ball8.png");
+	m_ball9Texture = new aie::Texture("./textures/ball9.png");
+	m_ball10Texture = new aie::Texture("./textures/ball10.png");
+	m_ball11Texture = new aie::Texture("./textures/ball11.png");
+	m_ball12Texture = new aie::Texture("./textures/ball12.png");
+	m_ball13Texture = new aie::Texture("./textures/ball13.png");
+	m_ball14Texture = new aie::Texture("./textures/ball14.png");
+	m_ball15Texture = new aie::Texture("./textures/ball15.png");
+
+
 
 	m_2dRenderer = new aie::Renderer2D();
 
@@ -38,6 +65,8 @@ bool PhysicsProjectApp::startup()
 	//If it is to high it causes the sim to stutter and reduce stability
 	m_physicsScene->SetTimeStep(0.01f);
 
+	//TriggerTest();
+	//SpringTest(10);
 	DrawPoolGame();
 	//DrawRect();
 	//SphereAndPlane();
@@ -45,20 +74,40 @@ bool PhysicsProjectApp::startup()
 	return true;
 }
 
-void PhysicsProjectApp::shutdown() {
+void PhysicsProjectApp::shutdown()
+{
 
 	delete m_font;
 	delete m_2dRenderer;
+	delete m_tableTexture;
+	delete m_ball1Texture;
+
 }
 
-void PhysicsProjectApp::update(float deltaTime) {
-
+void PhysicsProjectApp::update(float deltaTime)
+{
 	// input example
 	aie::Input* input = aie::Input::getInstance();
 
 	aie::Gizmos::clear();
 	m_physicsScene->Update(deltaTime);
 	m_physicsScene->Draw();
+
+	if (IsWhiteBallFirstShot)
+	{
+		ChooseWhiteBallLocation(input);
+	}
+
+	if (IsBallVelocity0())
+	{
+
+		ShootWhiteBall(input);
+
+		if (input->wasMouseButtonReleased(0))
+		{
+			whiteBall->ApplyForce((glm::vec2(whiteBall->GetPosition().x * extraForce, whiteBall->GetPosition().y * extraForce) - glm::vec2(worldPos.x * extraForce, worldPos.y * extraForce)), glm::vec2(0));
+		}
+	}
 
 	// exit the application
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
@@ -67,24 +116,128 @@ void PhysicsProjectApp::update(float deltaTime) {
 
 void PhysicsProjectApp::draw()
 {
-
 	// wipe the screen to the background colour
 	clearScreen();
+	setBackgroundColour(.5, .8, 0, 1);
 
 	// begin drawing sprites
 	m_2dRenderer->begin();
 
-	static float aspectRation = 16.0f / 9.0f;
-	aie::Gizmos::draw2D(glm::ortho<float>(-100, 100, -100 / aspectRation, 100 / aspectRation, -1.0f, 1.0f));
+
+	// If X-axis = -100 to 100, Y-axis = -56.25 to 56.25
+	aie::Gizmos::draw2D(getWindowWidth(), getWindowHeight());//glm::ortho<float>(-m_extents, m_extents, -m_extents / m_aspectRatio, m_extents / m_aspectRatio, -1.0f, 1.0f));
+
 
 
 	// draw your stuff here!
+	m_2dRenderer->drawSprite(m_tableTexture, getWindowWidth() / 2, getWindowHeight() / 2, getWindowWidth(), getWindowHeight(), 0);
+
+	m_2dRenderer->drawSprite(m_whiteBallTexture, whiteBall->GetPosition().x, whiteBall->GetPosition().y, whiteBall->GetRadius() * 2, whiteBall->GetRadius() * 2);
+
+	/*m_2dRenderer->drawSprite(m_testTexture, box1->GetPosition().x, box1->GetPosition().y, box1->GetWidth(), box1->GetHeight());
+	m_2dRenderer->drawSprite(m_testTexture, box2->GetPosition().x, box2->GetPosition().y, box2->GetWidth(), box2->GetHeight());
+	m_2dRenderer->drawSprite(m_testTexture, box3->GetPosition().x, box3->GetPosition().y, box3->GetWidth(), box3->GetHeight());
+	m_2dRenderer->drawSprite(m_testTexture, box4->GetPosition().x, box4->GetPosition().y, box4->GetWidth(), box4->GetHeight());
+	m_2dRenderer->drawSprite(m_testTexture, box5->GetPosition().x, box5->GetPosition().y, box5->GetWidth(), box5->GetHeight());
+	m_2dRenderer->drawSprite(m_testTexture, box6->GetPosition().x, box6->GetPosition().y, box6->GetWidth(), box6->GetHeight());
+
+	m_2dRenderer->drawSprite(m_whiteBallTexture, pocket1->GetPosition().x, pocket1->GetPosition().y, pocket1->GetRadius() * 2, pocket1->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_whiteBallTexture, pocket2->GetPosition().x, pocket2->GetPosition().y, pocket2->GetRadius() * 2, pocket2->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_whiteBallTexture, pocket3->GetPosition().x, pocket3->GetPosition().y, pocket3->GetRadius() * 2, pocket3->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_whiteBallTexture, pocket4->GetPosition().x, pocket4->GetPosition().y, pocket4->GetRadius() * 2, pocket4->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_whiteBallTexture, pocket5->GetPosition().x, pocket5->GetPosition().y, pocket5->GetRadius() * 2, pocket5->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_whiteBallTexture, pocket6->GetPosition().x, pocket6->GetPosition().y, pocket6->GetRadius() * 2, pocket6->GetRadius() * 2);*/
+
+
+
+	m_2dRenderer->drawSprite(m_ball1Texture, ball1->GetPosition().x, ball1->GetPosition().y, ball1->GetRadius() * 2, ball1->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball2Texture, ball2->GetPosition().x, ball2->GetPosition().y, ball2->GetRadius() * 2, ball2->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball3Texture, ball3->GetPosition().x, ball3->GetPosition().y, ball3->GetRadius() * 2, ball3->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball4Texture, ball4->GetPosition().x, ball4->GetPosition().y, ball4->GetRadius() * 2, ball4->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball5Texture, ball5->GetPosition().x, ball5->GetPosition().y, ball5->GetRadius() * 2, ball5->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball6Texture, ball6->GetPosition().x, ball6->GetPosition().y, ball6->GetRadius() * 2, ball6->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball7Texture, ball7->GetPosition().x, ball7->GetPosition().y, ball7->GetRadius() * 2, ball7->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball8Texture, ball8->GetPosition().x, ball8->GetPosition().y, ball8->GetRadius() * 2, ball8->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball9Texture, ball9->GetPosition().x, ball9->GetPosition().y, ball9->GetRadius() * 2, ball9->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball10Texture, ball10->GetPosition().x, ball10->GetPosition().y, ball10->GetRadius() * 2, ball10->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball11Texture, ball11->GetPosition().x, ball11->GetPosition().y, ball11->GetRadius() * 2, ball11->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball12Texture, ball12->GetPosition().x, ball12->GetPosition().y, ball12->GetRadius() * 2, ball12->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball13Texture, ball13->GetPosition().x, ball13->GetPosition().y, ball13->GetRadius() * 2, ball13->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball14Texture, ball14->GetPosition().x, ball14->GetPosition().y, ball14->GetRadius() * 2, ball14->GetRadius() * 2);
+	m_2dRenderer->drawSprite(m_ball15Texture, ball15->GetPosition().x, ball15->GetPosition().y, ball15->GetRadius() * 2, ball15->GetRadius() * 2);
 
 	// output some text, uses the last used colour
 	m_2dRenderer->drawText(m_font, "Press ESC to quit", 0, 0);
 
+
+	char fps[32];
+	sprintf_s(fps, 32, "FPS: %i", getFPS());
+	m_2dRenderer->drawText(m_font, fps, 0, 720 - 32);
 	// done drawing sprites
 	m_2dRenderer->end();
+}
+
+glm::vec2 PhysicsProjectApp::ScreenToWorld(glm::vec2 a_screenPos)
+{
+	glm::vec2 worldPos = a_screenPos;
+
+	// We will move the center of the screen to (0,0)
+	worldPos.x = getWindowWidth() / 2;
+	worldPos.y = getWindowHeight() / 2;
+
+	return worldPos;
+}
+
+void PhysicsProjectApp::ChooseWhiteBallLocation(aie::Input* a_input)
+{
+	if (a_input->isMouseButtonUp(0))
+	{
+		int xScreen, yScreen;
+		a_input->getMouseXY(&xScreen, &yScreen);
+		worldPos.x = a_input->getMouseX();
+		worldPos.y = a_input->getMouseY();
+		whiteBall->SetPosition(glm::vec2(333, worldPos.y));
+		if (whiteBall->GetPosition().y >= 620)
+			whiteBall->SetPosition(glm::vec2(333, 620));
+		else if (whiteBall->GetPosition().y <= 80)
+			whiteBall->SetPosition(glm::vec2(333, 80));
+	}
+}
+
+void PhysicsProjectApp::ShootWhiteBall(aie::Input* a_input)
+{
+	if (a_input->isMouseButtonDown(0))
+	{
+		IsWhiteBallFirstShot = false;
+		int xScreen, yScreen;
+		a_input->getMouseXY(&xScreen, &yScreen);
+		worldPos.x = a_input->getMouseX();
+		worldPos.y = a_input->getMouseY();
+
+		aie::Gizmos::add2DCircle(worldPos, 5, 32, glm::vec4(0.3));
+		aie::Gizmos::add2DLine(whiteBall->GetPosition(), worldPos, glm::vec4(1, 1, 1, 1));
+	}
+}
+
+void PhysicsProjectApp::AddBallsToBallList(Sphere* a_ball)
+{
+	m_ListOfBalls.push_back(a_ball);
+}
+
+bool PhysicsProjectApp::IsBallVelocity0()
+{
+	for (auto pBall : m_ListOfBalls)
+	{
+		if (glm::sqrt(pBall->GetVelocity().x * pBall->GetVelocity().x + pBall->GetVelocity().y * pBall->GetVelocity().y) <= 10)
+		{
+			pBall->SetVelocity(glm::vec2(0));
+		}
+		else
+		{
+			return false;
+		}
+		return true;
+	}
 }
 
 
@@ -109,7 +262,7 @@ void PhysicsProjectApp::DrawRect()
 	Sphere* ball = new Sphere(glm::vec2(5, -10), glm::vec2(0), 1, 3, glm::vec4(0, 0, 1, 1));
 	ball->SetRotation(0.5f);
 	m_physicsScene->AddActor(ball);
-	ball->SetKimematic(true);
+	ball->SetKinematic(true);
 }
 
 void PhysicsProjectApp::SphereAndPlane()
@@ -132,117 +285,268 @@ void PhysicsProjectApp::SphereAndPlane()
 
 void PhysicsProjectApp::DrawPoolGame()
 {
-	Sphere* WhiteBall;
-	WhiteBall = new Sphere(glm::vec2(-60, 0), glm::vec2(0, 0), 3.0f, 2, glm::vec4(1, 1, 1, 1));
-	m_physicsScene->AddActor(WhiteBall);
+	whiteBall = new Sphere(glm::vec2(900, 353), glm::vec2(0, 0), 3.0f, 20, glm::vec4(1, 1, 1, 1));
+	m_physicsScene->AddActor(whiteBall);
 
-	WhiteBall->ApplyForce(glm::vec2(400, 0), glm::vec2(0));
+	whiteBall->ApplyForce(glm::vec2(0, 0), glm::vec2(0));
 
 	//frontRow
-	Sphere* ball1;
-	ball1 = new Sphere(glm::vec2(40, 0), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball1 = new Sphere(glm::vec2(900, 353), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball1);
 
+
 	//secondRow
-	Sphere* ball2;
-	ball2 = new Sphere(glm::vec2(45, 2.5), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball2 = new Sphere(glm::vec2(935, 373), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball2);
-	Sphere* ball3;
-	ball3 = new Sphere(glm::vec2(45, -2.5), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball3 = new Sphere(glm::vec2(935, 330), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball3);
 
 	//thirdRow
-	Sphere* ball4;
-	ball4 = new Sphere(glm::vec2(50, 5), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball4 = new Sphere(glm::vec2(970, 393), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball4);
-	Sphere* ball5;
-	ball5 = new Sphere(glm::vec2(50, -5), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball5 = new Sphere(glm::vec2(970, 350), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball5);
-	Sphere* ball6;
-	ball6 = new Sphere(glm::vec2(50, 0), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball6 = new Sphere(glm::vec2(970, 307), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball6);
 
 	//fourthRow
-	Sphere* ball7;
-	ball7 = new Sphere(glm::vec2(55, 7.5), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball7 = new Sphere(glm::vec2(1005, 413), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball7);
-	Sphere* ball8;
-	ball8 = new Sphere(glm::vec2(55, -7.5), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball8 = new Sphere(glm::vec2(1005, 370), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball8);
-	Sphere* ball9;
-	ball9 = new Sphere(glm::vec2(55, 2.5), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball9 = new Sphere(glm::vec2(1005, 327), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball9);
-	Sphere* ball10;
-	ball10 = new Sphere(glm::vec2(55, -2.5), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball10 = new Sphere(glm::vec2(1005, 284), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball10);
 
 
-
 	//fifthRow
-	Sphere* ball11;
-	ball11 = new Sphere(glm::vec2(60, 10), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball11 = new Sphere(glm::vec2(1040, 433), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball11);
-	Sphere* ball12;
-	ball12 = new Sphere(glm::vec2(60, -10), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball12 = new Sphere(glm::vec2(1040, 390), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball12);
-	Sphere* ball13;
-	ball13 = new Sphere(glm::vec2(60, 5), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball13 = new Sphere(glm::vec2(1040, 347), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball13);
-	Sphere* ball14;
-	ball14 = new Sphere(glm::vec2(60, 0), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball14 = new Sphere(glm::vec2(1040, 304), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball14);
-	Sphere* ball15;
-	ball15 = new Sphere(glm::vec2(60, -5), glm::vec2(0, 0), 3.0f, 2, glm::vec4(0, 1, 1, 1));
+	ball15 = new Sphere(glm::vec2(1040, 261), glm::vec2(0, 0), 3.0f, 20, glm::vec4(0, 1, 1, 1));
 	m_physicsScene->AddActor(ball15);
 
+	AddBallsToBallList(whiteBall);
+	AddBallsToBallList(ball1);
+	AddBallsToBallList(ball2);
+	AddBallsToBallList(ball3);
+	AddBallsToBallList(ball4);
+	AddBallsToBallList(ball5);
+	AddBallsToBallList(ball6);
+	AddBallsToBallList(ball7);
+	AddBallsToBallList(ball8);
+	AddBallsToBallList(ball9);
+	AddBallsToBallList(ball10);
+	AddBallsToBallList(ball11);
+	AddBallsToBallList(ball12);
+	AddBallsToBallList(ball13);
+	AddBallsToBallList(ball14);
+	AddBallsToBallList(ball15);
+
+
+
+
 	//Bottom pool table border
-	Box* box1 = new Box(glm::vec2(45, -45), glm::vec2(0, 0), 0, 4, 40, 3, glm::vec4(1, 0, 0, 1));
+	box1 = new Box(glm::vec2(360, 40), glm::vec2(0, 0), 0, 10, 240, 40, glm::vec4(0.6, .3, .3, 1));
 	m_physicsScene->AddActor(box1);
-	Box* box2 = new Box(glm::vec2(-45, -45), glm::vec2(0, 0), 0, 4, 40, 3, glm::vec4(1, 0, 0, 1));
+	box1->SetKinematic(true);
+	box2 = new Box(glm::vec2(930, 40), glm::vec2(0, 0), 0, 10, 240, 40, glm::vec4(0.6, .3, .3, 1));
 	m_physicsScene->AddActor(box2);
+	box2->SetKinematic(true);
+
 
 	//Top pool table border
-	Box* box3 = new Box(glm::vec2(45, 45), glm::vec2(0, 0), 0, 4, 40, 3, glm::vec4(1, 0, 0, 1));
+	box3 = new Box(glm::vec2(360, 680), glm::vec2(0, 0), 0, 10, 240, 40, glm::vec4(0.6, .3, .3, 1));
 	m_physicsScene->AddActor(box3);
-	Box* box4 = new Box(glm::vec2(-45, 45), glm::vec2(0, 0), 0, 4, 40, 3, glm::vec4(1, 0, 0, 1));
+	box3->SetKinematic(true);
+	box4 = new Box(glm::vec2(930, 680), glm::vec2(0, 0), 0, 10, 240, 40, glm::vec4(0.6, .3, .3, 1));
 	m_physicsScene->AddActor(box4);
+	box4->SetKinematic(true);
+
 
 	//Left pool table border
-	Box* box5 = new Box(glm::vec2(-95, 0), glm::vec2(0, 0), 0, 4, 3, 40, glm::vec4(1, 0, 0, 1));
+	box5 = new Box(glm::vec2(40, 365), glm::vec2(0, 0), 0, 10, 40, 240, glm::vec4(0.6, .3, .3, 1));
 	m_physicsScene->AddActor(box5);
+	box5->SetKinematic(true);
+
 
 	//Right pool table border
-	Box* box6 = new Box(glm::vec2(95, 0), glm::vec2(0, 0), 0, 4, 3, 40, glm::vec4(1, 0, 0, 1));
+	box6 = new Box(glm::vec2(1240, 365), glm::vec2(0, 0), 0, 10, 40, 240, glm::vec4(0.6, .3, .3, 1));
 	m_physicsScene->AddActor(box6);
+	box6->SetKinematic(true);
+
 
 	//BottomMidHole
-	Sphere* pocket1;
-	pocket1 = new Sphere(glm::vec2(0, -47), glm::vec2(0, 0), 3.0f, 4.5, glm::vec4(0, 1, 0, 0));
+	pocket1 = new Sphere(glm::vec2(645, 35), glm::vec2(0, 0), 10, 45, glm::vec4(0, 0, 0, 1));
+	pocket1->SetKinematic(true);
+	pocket1->SetTrigger(true);
 	m_physicsScene->AddActor(pocket1);
+	pocket1->m_triggerEnter = [=](PhysicsObject* other)
+	{
+		if (other == whiteBall)
+		{
+			whiteBall->SetVelocity(glm::vec2(0, 0));
+			IsWhiteBallFirstShot = true;
+		}
 
-	//BottomRightHole
-	Sphere* pocket5;
-	pocket5 = new Sphere(glm::vec2(90, -45), glm::vec2(0, 0), 3.0f, 4.5, glm::vec4(0, 1, 0, 0));
-	m_physicsScene->AddActor(pocket5);
-
-	//BottomLeftHole
-	Sphere* pocket6;
-	pocket6 = new Sphere(glm::vec2(-90, -45), glm::vec2(0, 0), 3.0f, 4.5, glm::vec4(0, 1, 0, 0));
-	m_physicsScene->AddActor(pocket6);
+		else
+		{
+			dynamic_cast<RigidBody*>(other)->SetPosition(glm::vec2(ballCollectedXPos, 700));
+			ballCollectedXPos += 45;
+			other->SetKinematic(true);
+		}
+	};
 
 	//TopMidHole
-	Sphere* pocket2;
-	pocket2 = new Sphere(glm::vec2(0, 47), glm::vec2(0, 0), 3.0f, 4.5, glm::vec4(0, 1, 0, 0));
+	pocket2 = new Sphere(glm::vec2(645, 685), glm::vec2(0, 0), 10, 45, glm::vec4(0, 0, 0, 1));
+	pocket2->SetKinematic(true);
+	pocket2->SetTrigger(true);
 	m_physicsScene->AddActor(pocket2);
+	pocket2->m_triggerEnter = [=](PhysicsObject* other)
+	{
+		if (other == whiteBall)
+		{
+			IsWhiteBallFirstShot = true;
+			whiteBall->SetVelocity(glm::vec2(0, 0));
+		}
+		else
+		{
+			dynamic_cast<RigidBody*>(other)->SetPosition(glm::vec2(ballCollectedXPos, 700));
+			ballCollectedXPos += 45;
+			other->SetKinematic(true);
+		}
+	};
 
 	//TopLeftHole
-	Sphere* pocket3;
-	pocket3 = new Sphere(glm::vec2(-90, 45), glm::vec2(0, 0), 3.0f, 4.5, glm::vec4(0, 1, 0, 0));
+	pocket3 = new Sphere(glm::vec2(55, 670), glm::vec2(0, 0), 10, 55, glm::vec4(0, 0, 0, 1));
+	pocket3->SetKinematic(true);
+	pocket3->SetTrigger(true);
 	m_physicsScene->AddActor(pocket3);
+	pocket3->m_triggerEnter = [=](PhysicsObject* other)
+	{
+		if (other == whiteBall)
+		{
+			whiteBall->SetVelocity(glm::vec2(0, 0));
+			IsWhiteBallFirstShot = true;
+		}
+
+		else
+		{
+			dynamic_cast<RigidBody*>(other)->SetPosition(glm::vec2(ballCollectedXPos, 700));
+			ballCollectedXPos += 45;
+			other->SetKinematic(true);
+		}
+	};
 
 	//TopRightHole
-	Sphere* pocket4;
-	pocket4 = new Sphere(glm::vec2(90, 45), glm::vec2(0, 0), 3.0f, 4.5, glm::vec4(0, 1, 0, 0));
+	pocket4 = new Sphere(glm::vec2(1230, 670), glm::vec2(0, 0), 10, 55, glm::vec4(0, 0, 0, 1));
+	pocket4->SetKinematic(true);
+	pocket4->SetTrigger(true);
 	m_physicsScene->AddActor(pocket4);
+	pocket4->m_triggerEnter = [=](PhysicsObject* other)
+	{
+		if (other == whiteBall)
+		{
+			whiteBall->SetVelocity(glm::vec2(0, 0));
+			IsWhiteBallFirstShot = true;
+		}
 
+		else
+		{
+			dynamic_cast<RigidBody*>(other)->SetPosition(glm::vec2(ballCollectedXPos, 700));
+			ballCollectedXPos += 45;
+			other->SetKinematic(true);
+		}
+	};
+
+	//BottomRightHole
+	pocket5 = new Sphere(glm::vec2(1230, 55), glm::vec2(0, 0), 10, 55, glm::vec4(0, 0, 0, 1));
+	pocket5->SetKinematic(true);
+	pocket5->SetTrigger(true);
+	m_physicsScene->AddActor(pocket5);
+	pocket5->m_triggerEnter = [=](PhysicsObject* other)
+	{
+		if (other == whiteBall)
+		{
+			whiteBall->SetVelocity(glm::vec2(0, 0));
+			IsWhiteBallFirstShot = true;
+		}
+
+		else
+		{
+			dynamic_cast<RigidBody*>(other)->SetPosition(glm::vec2(ballCollectedXPos, 700));
+			ballCollectedXPos += 45;
+			other->SetKinematic(true);
+		}
+	};
+
+	//BottomLeftHole
+	pocket6 = new Sphere(glm::vec2(55, 55), glm::vec2(0, 0), 10, 55, glm::vec4(0, 0, 0, 1));
+	pocket6->SetKinematic(true);
+	pocket6->SetTrigger(true);
+	m_physicsScene->AddActor(pocket6);
+	pocket6->m_triggerEnter = [=](PhysicsObject* other)
+	{
+		if (other == whiteBall)
+		{
+			IsWhiteBallFirstShot = true;
+			whiteBall->SetVelocity(glm::vec2(0, 0));
+		}
+		else
+		{
+			dynamic_cast<RigidBody*>(other)->SetPosition(glm::vec2(ballCollectedXPos, 700));
+			ballCollectedXPos += 45;
+			other->SetKinematic(true);
+		}
+	};
+
+}
+
+
+
+
+
+void PhysicsProjectApp::SpringTest(int a_amount)
+{
+	Sphere* prev = nullptr;
+	for (int i = 0; i < a_amount; i++)
+	{
+		//This will need to spawn the sphere at the bottom of the previous one, to make a pendulum that is effected by gravity
+		Sphere* sphere = new Sphere(glm::vec2(i * 3, 30 - i * 5), glm::vec2(0), 10, 2, glm::vec4(0, 0, 1, 1));
+		if (i == 0)
+			sphere->SetKinematic(true);
+		m_physicsScene->AddActor(sphere);
+
+		if (prev)
+			m_physicsScene->AddActor(new Spring(sphere, prev, 10, 500));
+		prev = sphere;
+	}
+	Box* box = new Box(glm::vec2(0, -20), glm::vec2(0), 0.3f, 20, 8, 2);
+	box->SetKinematic(true);
+	m_physicsScene->AddActor(box);
+}
+
+void PhysicsProjectApp::TriggerTest()
+{
+	Sphere* ball1 = new Sphere(glm::vec2(10, 20), glm::vec2(0), 4, 4, glm::vec4(1, 0, 0, 1));
+	Sphere* ball2 = new Sphere(glm::vec2(10, -5), glm::vec2(0), 4, 4, glm::vec4(0, 0.5, 0.5, 1));
+	ball2->SetKinematic(true);
+	ball2->SetTrigger(true);
+
+	m_physicsScene->AddActor(ball1);
+	m_physicsScene->AddActor(ball2);
+	m_physicsScene->AddActor(new Plane(glm::vec2(0, 1), -30));
+	m_physicsScene->AddActor(new Plane(glm::vec2(1, 0), -50));
+	m_physicsScene->AddActor(new Plane(glm::vec2(-1, 0), -50));
+	m_physicsScene->AddActor(new Box(glm::vec2(20, 10), glm::vec2(3, 0), 0.5, 4, 8, 4));
+	m_physicsScene->AddActor(new Box(glm::vec2(-40, 10), glm::vec2(3, 0), 0.5, 4, 8, 4));
+
+	ball2->m_triggerEnter = [=](PhysicsObject* other) {ball2->SetPosition(glm::vec2(-90, 50)); };
+	ball2->m_triggerExit = [=](PhysicsObject* other) {std::cout << "EXITED: " << other << std::endl; };
 }

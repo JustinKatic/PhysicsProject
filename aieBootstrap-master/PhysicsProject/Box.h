@@ -10,6 +10,9 @@ public:
 	virtual void FixedUpdate(glm::vec2 a_gravity, float a_timestep);
 	virtual void MakeGizmo();
 
+	virtual bool IsInside(glm::vec2 a_point) { return false; }
+
+
 	bool CheckBoxCorners(const Box& a_box, glm::vec2& a_contact, int& a_numOfContacts, float& a_pen, glm::vec2& a_edgeNode);
 
 
@@ -26,10 +29,6 @@ public:
 protected:
 	glm::vec2 m_extents;  //the half length of the box
 	glm::vec4 m_color;
-
-	//these will store the local x and y axes of the box based on its angle of rotation
-	glm::vec2 m_localX;
-	glm::vec2 m_localY;
 
 };
 

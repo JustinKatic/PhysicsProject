@@ -7,6 +7,7 @@ Sphere::Sphere(glm::vec2 a_position, glm::vec2 a_velocity, float a_mass, float a
 {
 	m_radius = a_radius;
 	m_color = a_color;
+	m_moment = 1.0f * m_mass * m_radius * m_radius;
 }
 
 void Sphere::MakeGizmo()
@@ -16,18 +17,10 @@ void Sphere::MakeGizmo()
 	aie::Gizmos::add2DLine(m_position, m_position + end, glm::vec4(1));
 }
 
-bool Sphere::CheckCollision(PhysicsObject* pOther)
+bool Sphere::IsInside(glm::vec2 a_point)
 {
-	Sphere* pSphere = dynamic_cast<Sphere*>(pOther);
-	if (pSphere != nullptr)
-	{
-		float dist = glm::distance(GetPosition(), pSphere->GetPosition());
-		if (GetRadius() + pSphere->GetRadius() > dist)
-		{
-			return true;
-		}
-	}
-
-
-	return false;
+	return glm::distance(a_point, GetPosition()) <= GetRadius();
 }
+
+
+
