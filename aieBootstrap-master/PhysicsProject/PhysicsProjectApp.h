@@ -8,7 +8,8 @@
 #include "Sphere.h"
 #include"Box.h"
 
-class PhysicsProjectApp : public aie::Application {
+class PhysicsProjectApp : public aie::Application
+{
 public:
 
 	PhysicsProjectApp();
@@ -28,7 +29,7 @@ protected:
 	aie::Renderer2D* m_2dRenderer;
 	aie::Font* m_font;
 
-	float extraForce = 5;
+	float extraForce = 20;
 	float ballCollectedXPos = 130;
 
 	PhysicsScene* m_physicsScene;

@@ -24,13 +24,11 @@ bool PhysicsProjectApp::startup()
 {
 	//increases the 2D line count to maximise the number of objects we an draw
 	aie::Gizmos::create(255U, 255U, 65535U, 65535U);
-
-	m_testTexture = new aie::Texture("./textures/grass.png");
+	 
 
 	m_tableTexture = new aie::Texture("./textures/table.png");
 
 	m_whiteBallTexture = new aie::Texture("./textures/whiteBall.png");
-
 	m_ball1Texture = new aie::Texture("./textures/ball1.png");
 	m_ball2Texture = new aie::Texture("./textures/ball2.png");
 	m_ball3Texture = new aie::Texture("./textures/ball3.png");
@@ -103,10 +101,7 @@ void PhysicsProjectApp::update(float deltaTime)
 
 		ShootWhiteBall(input);
 
-		if (input->wasMouseButtonReleased(0))
-		{
-			whiteBall->ApplyForce((glm::vec2(whiteBall->GetPosition().x * extraForce, whiteBall->GetPosition().y * extraForce) - glm::vec2(worldPos.x * extraForce, worldPos.y * extraForce)), glm::vec2(0));
-		}
+
 	}
 
 	// exit the application
@@ -134,22 +129,8 @@ void PhysicsProjectApp::draw()
 
 	m_2dRenderer->drawSprite(m_whiteBallTexture, whiteBall->GetPosition().x, whiteBall->GetPosition().y, whiteBall->GetRadius() * 2, whiteBall->GetRadius() * 2);
 
-	/*m_2dRenderer->drawSprite(m_testTexture, box1->GetPosition().x, box1->GetPosition().y, box1->GetWidth(), box1->GetHeight());
-	m_2dRenderer->drawSprite(m_testTexture, box2->GetPosition().x, box2->GetPosition().y, box2->GetWidth(), box2->GetHeight());
-	m_2dRenderer->drawSprite(m_testTexture, box3->GetPosition().x, box3->GetPosition().y, box3->GetWidth(), box3->GetHeight());
-	m_2dRenderer->drawSprite(m_testTexture, box4->GetPosition().x, box4->GetPosition().y, box4->GetWidth(), box4->GetHeight());
-	m_2dRenderer->drawSprite(m_testTexture, box5->GetPosition().x, box5->GetPosition().y, box5->GetWidth(), box5->GetHeight());
-	m_2dRenderer->drawSprite(m_testTexture, box6->GetPosition().x, box6->GetPosition().y, box6->GetWidth(), box6->GetHeight());
 
-	m_2dRenderer->drawSprite(m_whiteBallTexture, pocket1->GetPosition().x, pocket1->GetPosition().y, pocket1->GetRadius() * 2, pocket1->GetRadius() * 2);
-	m_2dRenderer->drawSprite(m_whiteBallTexture, pocket2->GetPosition().x, pocket2->GetPosition().y, pocket2->GetRadius() * 2, pocket2->GetRadius() * 2);
-	m_2dRenderer->drawSprite(m_whiteBallTexture, pocket3->GetPosition().x, pocket3->GetPosition().y, pocket3->GetRadius() * 2, pocket3->GetRadius() * 2);
-	m_2dRenderer->drawSprite(m_whiteBallTexture, pocket4->GetPosition().x, pocket4->GetPosition().y, pocket4->GetRadius() * 2, pocket4->GetRadius() * 2);
-	m_2dRenderer->drawSprite(m_whiteBallTexture, pocket5->GetPosition().x, pocket5->GetPosition().y, pocket5->GetRadius() * 2, pocket5->GetRadius() * 2);
-	m_2dRenderer->drawSprite(m_whiteBallTexture, pocket6->GetPosition().x, pocket6->GetPosition().y, pocket6->GetRadius() * 2, pocket6->GetRadius() * 2);*/
-
-
-
+	m_2dRenderer->setUVRect(0, 0, 1, 1);
 	m_2dRenderer->drawSprite(m_ball1Texture, ball1->GetPosition().x, ball1->GetPosition().y, ball1->GetRadius() * 2, ball1->GetRadius() * 2);
 	m_2dRenderer->drawSprite(m_ball2Texture, ball2->GetPosition().x, ball2->GetPosition().y, ball2->GetRadius() * 2, ball2->GetRadius() * 2);
 	m_2dRenderer->drawSprite(m_ball3Texture, ball3->GetPosition().x, ball3->GetPosition().y, ball3->GetRadius() * 2, ball3->GetRadius() * 2);
@@ -192,8 +173,6 @@ void PhysicsProjectApp::ChooseWhiteBallLocation(aie::Input* a_input)
 {
 	if (a_input->isMouseButtonUp(0))
 	{
-		int xScreen, yScreen;
-		a_input->getMouseXY(&xScreen, &yScreen);
 		worldPos.x = a_input->getMouseX();
 		worldPos.y = a_input->getMouseY();
 		whiteBall->SetPosition(glm::vec2(333, worldPos.y));
@@ -206,16 +185,23 @@ void PhysicsProjectApp::ChooseWhiteBallLocation(aie::Input* a_input)
 
 void PhysicsProjectApp::ShootWhiteBall(aie::Input* a_input)
 {
+	worldPos.x = a_input->getMouseX();
+	worldPos.y = a_input->getMouseY();
+	glm::vec2 dist = whiteBall->GetPosition() - worldPos;
+	if (glm::length(dist) > 200)
+	{
+		dist = glm::normalize(dist) * 200.0f;
+	}
+
 	if (a_input->isMouseButtonDown(0))
 	{
 		IsWhiteBallFirstShot = false;
-		int xScreen, yScreen;
-		a_input->getMouseXY(&xScreen, &yScreen);
-		worldPos.x = a_input->getMouseX();
-		worldPos.y = a_input->getMouseY();
 
-		aie::Gizmos::add2DCircle(worldPos, 5, 32, glm::vec4(0.3));
-		aie::Gizmos::add2DLine(whiteBall->GetPosition(), worldPos, glm::vec4(1, 1, 1, 1));
+		aie::Gizmos::add2DLine(whiteBall->GetPosition(), whiteBall->GetPosition() - dist, glm::vec4(1, 1, 1, 1));
+	}
+	if (a_input->wasMouseButtonReleased(0))
+	{
+		whiteBall->ApplyForce(dist * extraForce, glm::vec2(0));
 	}
 }
 
