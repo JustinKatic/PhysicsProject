@@ -7,6 +7,8 @@
 #include "PhysicsScene.h"
 #include "Sphere.h"
 #include"Box.h"
+#include <vector>
+
 
 class PhysicsProjectApp : public aie::Application
 {
@@ -21,7 +23,7 @@ public:
 	virtual void update(float deltaTime);
 	virtual void draw();
 
-	glm::vec2 ScreenToWorld(glm::vec2 a_screenPos);
+	//glm::vec2 ScreenToWorld(glm::vec2 a_screenPos);
 
 protected:
 	glm::vec2 worldPos;
@@ -34,8 +36,8 @@ protected:
 
 	PhysicsScene* m_physicsScene;
 
-	const float m_aspectRatio = 16.0f / 9.0f;
-	const float m_extents = 100;
+	//const float m_aspectRatio = 16.0f / 9.0f;
+	//const float m_extents = 100;
 
 	aie::Texture* m_tableTexture;
 
@@ -45,7 +47,20 @@ protected:
 	bool HasBallsStopped;
 
 	void AddBallsToBallList(Sphere* a_ball);
+	std::vector<Sphere*> m_ListOfBalls;
+
+	void AddPocketsToPocketList(Sphere* a_pocket);
+	std::vector<Sphere*> m_ListOfPockets;
+
 	bool IsBallVelocity0();
+
+	void Createballs();
+
+	void CreatePockets();
+
+
+	void CreateBoxBoarders();
+
 
 	aie::Texture* m_testTexture;
 
@@ -68,7 +83,6 @@ protected:
 	aie::Texture* m_ball13Texture;
 	aie::Texture* m_ball14Texture;
 	aie::Texture* m_ball15Texture;
-
 
 
 	Sphere* whiteBall;
@@ -103,13 +117,10 @@ protected:
 	Sphere* pocket6;
 
 
-	std::vector<Sphere*> m_ListOfBalls;
-
 
 public:
 	void DrawRect();
 	void SphereAndPlane();
-	void DrawPoolGame();
 	void SpringTest(int a_amount);
 	void TriggerTest();
 
